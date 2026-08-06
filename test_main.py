@@ -290,3 +290,166 @@ def test_sample_numbers_fixture(sample_numbers):
 def test_small_int_fixture(small_int):
     assert small_int in (1, 2, 3)
     assert is_even(small_int) or not is_even(small_int)
+
+
+from main import (
+    is_palindrome,
+    factorial,
+    count_vowels,
+    flatten_list,
+    unique_items,
+    merge_dicts,
+    is_prime,
+    chunk_list,
+    safe_divide,
+    Stack,
+)
+
+
+def test_is_palindrome_true():
+    assert is_palindrome("kayak") is True
+    assert is_palindrome("Was it a car or a cat I saw") is True
+
+
+def test_is_palindrome_false():
+    assert is_palindrome("hello") is False
+
+
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("madam", True),
+        ("racecar", True),
+        ("python", False),
+        ("", True),
+    ],
+)
+def test_is_palindrome_parametrized(text, expected):
+    assert is_palindrome(text) is expected
+
+
+def test_factorial_basic():
+    assert factorial(0) == 1
+    assert factorial(1) == 1
+    assert factorial(5) == 120
+
+
+def test_factorial_negative_raises():
+    with pytest.raises(ValueError, match="not defined for negative numbers"):
+        factorial(-3)
+
+
+def test_count_vowels():
+    assert count_vowels("Hello World") == 3
+    assert count_vowels("xyz") == 0
+    assert count_vowels("AEIOU") == 5
+
+
+def test_flatten_list_simple():
+    assert flatten_list([1, [2, 3], [4, [5, 6]]]) == [1, 2, 3, 4, 5, 6]
+
+
+def test_flatten_list_already_flat():
+    assert flatten_list([1, 2, 3]) == [1, 2, 3]
+
+
+def test_flatten_list_empty():
+    assert flatten_list([]) == []
+
+
+def test_unique_items():
+    assert unique_items([1, 2, 2, 3, 1, 4]) == [1, 2, 3, 4]
+
+
+def test_unique_items_empty():
+    assert unique_items([]) == []
+
+
+def test_merge_dicts_no_overlap():
+    assert merge_dicts({"a": 1}, {"b": 2}) == {"a": 1, "b": 2}
+
+
+def test_merge_dicts_overlap_second_wins():
+    assert merge_dicts({"a": 1}, {"a": 2}) == {"a": 2}
+
+
+@pytest.mark.parametrize(
+    "n,expected",
+    [
+        (1, False),
+        (2, True),
+        (3, True),
+        (4, False),
+        (17, True),
+        (18, False),
+        (0, False),
+        (-5, False),
+    ],
+)
+def test_is_prime(n, expected):
+    assert is_prime(n) is expected
+
+
+def test_chunk_list_even():
+    assert chunk_list([1, 2, 3, 4], 2) == [[1, 2], [3, 4]]
+
+
+def test_chunk_list_uneven():
+    assert chunk_list([1, 2, 3, 4, 5], 2) == [[1, 2], [3, 4], [5]]
+
+
+def test_chunk_list_invalid_size():
+    with pytest.raises(ValueError, match="size must be positive"):
+        chunk_list([1, 2, 3], 0)
+
+
+def test_safe_divide_normal():
+    assert safe_divide(10, 2) == 5
+
+
+def test_safe_divide_by_zero_default_none():
+    assert safe_divide(10, 0) is None
+
+
+def test_safe_divide_by_zero_custom_default():
+    assert safe_divide(10, 0, default=-1) == -1
+
+
+@pytest.fixture
+def stack():
+    return Stack()
+
+
+def test_stack_push_pop(stack):
+    stack.push(1)
+    stack.push(2)
+    assert stack.pop() == 2
+    assert stack.pop() == 1
+
+
+def test_stack_peek_does_not_remove(stack):
+    stack.push(10)
+    assert stack.peek() == 10
+    assert len(stack) == 1
+
+
+def test_stack_is_empty(stack):
+    assert stack.is_empty() is True
+    stack.push(1)
+    assert stack.is_empty() is False
+
+
+def test_stack_pop_empty_raises(stack):
+    with pytest.raises(IndexError, match="pop from empty stack"):
+        stack.pop()
+
+
+def test_stack_peek_empty_raises(stack):
+    with pytest.raises(IndexError, match="peek from empty stack"):
+        stack.peek()
+
+
+def test_stack_len(stack):
+    for i in range(5):
+        stack.push(i)
+    assert len(stack) == 5
